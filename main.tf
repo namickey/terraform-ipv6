@@ -43,6 +43,12 @@ resource "aws_route_table" "v6-route" {
   }
 }
 
+resource "aws_route" "v4-route-to-public-igw" {
+  destination_cidr_block = "0.0.0.0/0"
+  route_table_id         = "${aws_route_table.v6-route.id}"
+  gateway_id             = "${aws_internet_gateway.v6-igw.id}"
+}
+
 resource "aws_route" "v6-route-to-public-igw" {
   destination_ipv6_cidr_block = "::/0"
   route_table_id         = "${aws_route_table.v6-route.id}"
@@ -111,6 +117,6 @@ resource "aws_instance" "v6-ec2" {
 }
 
 output "public_id_of_v6-ec2" {
-  value = "${aws_instance.v6-ec2.private_ip}"
+  value = ["${aws_instance.v6-ec2.ipv6_addresses}"]
 }
 
