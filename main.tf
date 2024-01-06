@@ -10,6 +10,7 @@ provider "aws" {
 }
 
 resource "aws_vpc" "v6-vpc" {
+  cidr_block = "10.0.0.0/16"
   assign_generated_ipv6_cidr_block = true
   tags = {
     "Name" = "v6-vpc"
@@ -54,6 +55,8 @@ resource "aws_route_table_association" "v6-association" {
 }
 
 resource "aws_security_group" "v6-sg" {
+  name = "v6-sg"
+  vpc_id = "${aws_vpc.v6-vpc.id}"
   description = "v6-sg"
   egress = [
     {
