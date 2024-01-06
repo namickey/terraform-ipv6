@@ -104,8 +104,13 @@ resource "aws_instance" "v6-ec2" {
   key_name                = "v6"
   vpc_security_group_ids  = [aws_security_group.v6-sg.id]
   subnet_id               = aws_subnet.v6-sub.id
+  user_data = file("./setup.sh")
   tags = {
     Name = "v6-ec2"
   }
+}
+
+output "public_id_of_v6-ec2" {
+  value = "${aws_instance.v6-ec2.private_ip}"
 }
 
