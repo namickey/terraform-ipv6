@@ -1,11 +1,11 @@
 
-variable "aws_access_key" {}
-variable "aws_secret_key" {}
+#variable "aws_access_key" {}
+#variable "aws_secret_key" {}
 
 
 provider "aws" {
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
+  #access_key = var.aws_access_key
+  #secret_key = var.aws_secret_key
   region = "ap-northeast-1"
 }
 
@@ -18,10 +18,11 @@ resource "aws_vpc" "v6-vpc" {
 }
 
 resource "aws_subnet" "v6-sub" {
+  cidr_block = "10.0.1.0/24"
   vpc_id = "${aws_vpc.v6-vpc.id}"
   assign_ipv6_address_on_creation = true
   ipv6_cidr_block = cidrsubnet(aws_vpc.v6-vpc.ipv6_cidr_block, 4, 0)
-  ipv6_native = true
+  ipv6_native = false
   enable_resource_name_dns_aaaa_record_on_launch = true
   tags = {
     "Name" = "v6-sub"
@@ -103,6 +104,14 @@ resource "aws_security_group" "v6-sg" {
   ]
 }
 
+resource "aws_ec2_instance_connect_endpoint" "v6-ece" {
+  subnet_id = aws_subnet.v6-sub.id
+  security_group_ids = [aws_security_group.v6-sg.id]
+  tags = {
+    Name = "v6-ece"
+  }
+}
+
 resource "aws_instance" "v6-ec2" {
   ami                     = "ami-0dfa284c9d7b2adad"
   instance_type           = "t3.nano"
@@ -116,7 +125,10 @@ resource "aws_instance" "v6-ec2" {
   }
 }
 
+output "public_id_of_v4-ec2" {
+  value = "${aws_instance.v6-ec2.public_ip}"
+}
+
 output "public_id_of_v6-ec2" {
   value = ["${aws_instance.v6-ec2.ipv6_addresses}"]
 }
-
